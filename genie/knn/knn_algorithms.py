@@ -50,20 +50,6 @@ class TorchKNN(BaseKNN):
     def __init__(self, config: TorchKNNConfig):
         super().__init__(config)
 
-    def get_nearest_neighbours(self, query: torch.Tensor, points: torch.Tensor) -> torch.Tensor:
-        """Get indices of nearest neighbours using PyTorch."""
-
-        n_coords = query.shape[0]
-        nearest_indices = torch.empty((n_coords, self.config.n_neighbours), device=self.config.device, dtype=int)
-        distances = torch.empty((n_coords, self.config.n_neighbours), device=self.config.device, dtype=torch.float32)
-        for i in range(0, n_coords, self.config.batch_size):
-            batch_coords = query[i:i+self.config.batch_size]
-            dists = torch.cdist(batch_coords, points).to(device=self.config.device)
-            _, batch_nearest_indices = torch.topk(dists, self.config.n_neighbours, largest=False, sorted=False)
-            nearest_indices[i:i+self.config.batch_size] = batch_nearest_indices
-            distances[i:i+self.config.batch_size] = dists[batch_nearest_indices]
-        return nearest_indices, distances
-    
     def get_nearest_neighbours(self, query: torch.Tensor):
         device = self.config.device
         batch_size = self.config.batch_size
