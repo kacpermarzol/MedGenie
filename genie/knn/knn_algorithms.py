@@ -63,8 +63,11 @@ class TorchKNN(BaseKNN):
             _, batch_nearest_indices = torch.topk(dists, self.config.n_neighbours, largest=False, sorted=False)
             nearest_indices[i:i+self.config.batch_size] = batch_nearest_indices
             distances[i:i+self.config.batch_size] = dists[batch_nearest_indices]
-            
         return nearest_indices, distances
+    
+    def fit(self, points: torch.Tensor):
+        """No fitting needed for Torch KNN."""
+        pass
 
 
 # @dataclass
