@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from nerfstudio.configs.base_config import InstantiateConfig
 from typing import Type
 
-from genie.knn import optix_knn
+# from genie.knn import optix_knn
 
 
 @dataclass
