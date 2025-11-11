@@ -20,7 +20,6 @@ class BaseKNNConfig(InstantiateConfig):
     device: str = 'cuda'
     """Device to run the KNN algorithm on."""
 
-
 class BaseKNN:
     """Base class for KNN algorithms."""
 
@@ -65,9 +64,27 @@ class TorchKNN(BaseKNN):
             distances[i:i+self.config.batch_size] = dists[batch_nearest_indices]
         return nearest_indices, distances
     
+    def get_nearest_neighbours(self, query: torch.Tensor):
+        device = self.config.device
+        batch_size = self.config.batch_size
+        k = self.config.n_neighbours
+
+        n_coords = query.shape[0]
+        nearest_indices = torch.empty((n_coords, k), device=device, dtype=torch.long)
+        distances = torch.empty((n_coords, k), device=device, dtype=torch.float32)
+
+        for i in range(0, n_coords, batch_size):
+            batch_coords = query[i:i + batch_size].to(device)
+            dists = torch.cdist(batch_coords, self.points)  
+            batch_dists, batch_indices = torch.topk(dists, k, largest=False, sorted=False)
+            nearest_indices[i:i + batch_size] = batch_indices
+            distances[i:i + batch_size] = batch_dists
+        return nearest_indices, distances
+    
     def fit(self, points: torch.Tensor):
-        """No fitting needed for Torch KNN."""
-        pass
+        self.points = points.to(self.config.device)
+        return self
+
 
 
 # @dataclass
